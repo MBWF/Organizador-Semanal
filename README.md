@@ -25,7 +25,7 @@
 <p>
     A linguagem utilizada foi C, escolhida pelo professor e a turma no inicio do período.
   C é uma linguagem Procedural, criada em 1972 por Dennis Ritchie, até hoje é uma ótima escolha para quem 
-  está inciandona programação, visto que faz os alunos ter um visão sobre como as linguagens evoluiram. 
+  está iniciando na programação, visto que faz os alunos ter um visão sobre como as linguagens evoluiram. 
 </p>
 
 ## Assuntos abordados no projeto:
