@@ -8,13 +8,13 @@
 </p>
 <p>
     O professor nos solicitou uma aplicação voltada para os problemas apresentados no contexto da pandemia,
-  observamos que um grande problema de nos estudante está na falta de foco, dada a grande quantidade de atividades, estudo
+  observamos que um grande problema de nos estudantes está na falta de foco, dada a grande quantidade de atividades, estudo
   e diversa outros aspectos
 </p>
 
 <p>
-    Então nos veio a mente um aplicação para ajudar o aluno com a a organização da semanal de todas suas atividades,
-  com suas semana bem descrita o aluno terá facilidade em saber quando focar em um tarefa e quando passar para outra
+    Então nos veio a ideia de uma aplicação para ajudar o aluno com a organizar suas atividades ao longo da semana,
+  com suas semana bem descrita o aluno terá facilidade em saber quando focar em uma tarefa e quando passar para outra
 </p>
  
 ---
