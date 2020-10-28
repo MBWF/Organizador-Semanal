@@ -35,5 +35,5 @@
 ---
 # Autores
   - Jairo Soares de Lima
-  - Lucas
-  - Márcio
+  - Lucas de Lima Garreto
+  - Márcio Bizerra Wanderley Filho
