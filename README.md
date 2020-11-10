@@ -3,7 +3,7 @@
 # Sobre o projeto:
 <p>
     Esse projeto foi desenvolvido sobre a demanda de um atividade prática como nota
-  para a cadeira de Programação I, orfetada pela Universidade Estadual da Paraíba (UEPB) do segundo período
+  para a cadeira de Programação I, orfetada pela Universidade Estadual da Paraíba (**UEPB**) do segundo período
   tendo com docente Pablo Roberto.
 </p>
 <p>
@@ -29,9 +29,27 @@
 </p>
 
 ## Assuntos abordados no projeto:
-  [x] assunto a <br/>
-  [] assunto b
+  [x] Estruturas de Decisão <br/>
+  [x] Estrutura de Repetição <br/>
+  [x] Strings <br/>
+  [x] Struct <br/>
+  [x] Modularização <br/>
+  [x] Ponteiros <br/>
+  [x] Alocação Dinâmica <br/>
+  [x] Listas Encadeadas <br/>
+  [x] Arquivos <br/>
 
+---
+# Funcionalidades:
+  0 - Sair
+  1 - Cadastrar atividade
+  2 - Buscar atividade
+  3 - Alterar atividade
+  4 - Deletar atividade
+  5 - Mostrar Tags
+  6 - Mostrar Relatório Semanal
+  7 - Mostrar Agenda Semanal
+  
 ---
 # Autores
   - Jairo Soares de Lima
