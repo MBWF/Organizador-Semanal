@@ -4,12 +4,14 @@
 #include <string.h>
 
 #define MAX_LEN 128 // Leitura maxima para imprimir a Logo
+#define TAM_SEMANA 7 // Quantidades de dias na semana de Domingo a Sabado
 
 // Cores para o console em ANSII
 #define COR_VERMELHA "\033[1;31m"
 #define COR_VERDE "\033[1;32m"
 #define COR_AZUL "\033[1;94m"
 #define COR_BRANCA "\033[1;97m"
+#define COR_ROXA "\033[0;35m"
 
 // Structs
 typedef struct {
@@ -20,31 +22,110 @@ typedef struct {
 } Horario;
 
 typedef struct {
-  char tag[50];
+  char nomeAtividade[50];
+  int grau;
   char descricao[100];
   Horario horario;
   struct AtividadesDia *prox;
 } AtividadesDia;
 
 typedef struct {
-  AtividadesDia *seg;
-  AtividadesDia *ter;
-  AtividadesDia *qua;
-  AtividadesDia *qui;
-  AtividadesDia *sex;
-  AtividadesDia *sab;
-  AtividadesDia *dom;
+  AtividadesDia *semana[TAM_SEMANA];
 } agendaSemanal;
 
 typedef struct {
   char nomeAtividade[50];
-  int diaDaSemana;
   Horario horario;
   char descricao[100];
-  char tag[50];
+  int grau;
 } DadosAtividade;
 
+// Variaveis Globais
+agendaSemanal agendasemanal;
+DadosAtividade dadosAtividade;
+
 // Funções
+
+void cadastrarAtividade() {
+  int opDeAtribuicaoOuCriacao;
+
+  printf("Qual o nome da atividade? ");
+        setbuf(stdin, NULL);
+        fgets(dadosAtividade.nomeAtividade, sizeof(dadosAtividade.nomeAtividade), stdin);
+
+        printf("Que horas começa a atividade?");
+        printf("\nHora/Minutos: ");
+        scanf("%d", &dadosAtividade.horario.inicioHora);
+        scanf("%d", &dadosAtividade.horario.inicioMinuto);
+
+        printf("---------------------------------\n");
+
+        printf("Que horas termina a atividade?");
+        printf("\nHora/Minutos: ");
+        scanf("%d", &dadosAtividade.horario.fimHora);
+        scanf("%d", &dadosAtividade.horario.fimMinuto);
+        printf("---------------------------------\n");
+        printf("Descrição:\n");
+        setbuf(stdin, NULL);
+        fgets(dadosAtividade.descricao, sizeof(dadosAtividade.descricao), stdin);
+
+        printf("\nQual o Grau de importância(1 a 5)?\n");
+        scanf("%i", &dadosAtividade.grau);
+}
+
+void listaAtividades(AtividadesDia *inicio) {
+  AtividadesDia *atividades = inicio;
+
+  while(atividades!=NULL){
+
+    printf(COR_BRANCA "Nome Atividade: %s",atividades->nomeAtividade);
+    printf("Descrição: %s",atividades->descricao);
+    printf("\n");
+    printf("Horario: \nDas %d:%d até as %d:%d", atividades->horario.inicioHora, atividades->horario.inicioMinuto, atividades->horario.fimHora, atividades->horario.fimMinuto);
+    printf(COR_AZUL "--------------------------------\n" COR_BRANCA);
+
+    atividades = (AtividadesDia *)atividades->prox;
+  }
+}
+
+AtividadesDia * inserirAtividade(AtividadesDia *inicio, DadosAtividade *dados) {
+
+  // alocando o novo nó
+  AtividadesDia *atividade;
+  atividade = (AtividadesDia *) malloc(sizeof(AtividadesDia));
+
+  // dados da atividade
+  strcpy(atividade->nomeAtividade, dados->nomeAtividade);
+  strcpy(atividade->descricao, dados->descricao);
+
+  // horario da atividade
+  atividade->horario.inicioHora = dados->horario.inicioHora;
+  atividade->horario.fimHora = dados->horario.fimHora;
+  atividade->horario.inicioMinuto = dados->horario.inicioMinuto;
+  atividade->horario.fimMinuto = dados->horario.fimMinuto;
+
+  atividade->grau = dados->grau;
+
+  atividade->prox = NULL;
+
+  // está inserindo ao final da lista! ainda sem criterio para inserir
+  if(inicio == NULL) {
+    return atividade;
+
+  }
+  else {
+
+    AtividadesDia *p = inicio;
+
+    while(p->prox != NULL) {
+      p = (AtividadesDia *) p->prox ;
+    }
+
+    p->prox = (struct AtividadesDia *) atividade;
+
+    return inicio;
+  }
+}
 
 AtividadesDia * criar_atividades_dia(void) {
   return NULL;
@@ -70,147 +151,91 @@ void logo() {
   print_image(fptr);
 
   fclose(fptr);
-  
-}
-void config(agendaSemanal *agenda) {
-  agenda->dom = criar_atividades_dia();
-  agenda->seg = criar_atividades_dia();
-  agenda->ter = criar_atividades_dia();
-  agenda->qua = criar_atividades_dia();
-  agenda->qui = criar_atividades_dia();
-  agenda->sex = criar_atividades_dia();
-  agenda->sab = criar_atividades_dia();
-}
-
-void criarTag(void) {
-
-  char listaTags[50];
-  
-  printf("Digite o nome da Tag: ");
-  fgets(listaTags, sizeof(listaTags), stdin);
 
 }
+
+void config(AtividadesDia *semana[], int tam) {
+
+ for(int i = 0; i < tam; i++){
+   semana[i] = criar_atividades_dia();
+  }
+}
+
+//Fim das Funções
 
 // Main
 int main() {
   setlocale(LC_ALL, "Portuguese");
 
-  agendaSemanal agendaSemanal;
-  config(&agendaSemanal);
+  config(agendasemanal.semana, TAM_SEMANA);
 
-  DadosAtividade dadosAtividade;
-  int op, opDeAtribuicaoOuCriacao;
-  char diaSemana[7][10] = {"Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"};
+  int op;
+  // char diaSemana[7][10] = {"Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"};
 
   // logo();
 
   do {  // começo do menu do programa
-    
+
     printf("\nEscolha uma das opções abaixo:");
     printf("\n1 - Cadastrar atividade");
     printf("\n2 - Buscar atividade");
     printf("\n3 - Alterar atividade");
     printf("\n4 - Deletar atividade");
-    printf("\n5 - Mostrar Tags");
-    printf("\n6 - Mostrar Relatório Semanal");
-    printf("\n7 - Mostrar Agenda Semanal");
+    printf("\n5 - Mostrar Relatório Semanal");
+    printf("\n6 - Mostrar Agenda Semanal");
     printf("\n0 - Sair");
 
-    
     printf("\nDigite a opção:\n");
     scanf("%d", &op);
-    
+
     switch (op) {
-      
+
       case 0:
         printf(COR_AZUL "Até mais\n" COR_BRANCA);
-        
+
       break;
 
       case 1:
+        cadastrarAtividade();
 
-        printf("Qual o nome da atividade? ");
-        setbuf(stdin, NULL);
-        fgets(dadosAtividade.nomeAtividade, sizeof(dadosAtividade.nomeAtividade), stdin);
-        
-        printf("Qual dia da semana?\n");
-        for (int i = 0; i < 7; i++) 
-          printf("%d - %s\n", i+1 ,diaSemana[i]);
-        
-        scanf("%d", &dadosAtividade.diaDaSemana);
-
-        printf("Que horas começa a atividade?");
-        printf("\nHora/Minutos: ");
-        scanf("%d", &dadosAtividade.horario.inicioHora);
-        scanf("%d", &dadosAtividade.horario.inicioMinuto);
-
-        printf("---------------------------------\n");
-
-        printf("Que horas termina a atividade?");
-        printf("\nHora/Minutos: ");
-        scanf("%d", &dadosAtividade.horario.fimHora);
-        scanf("%d", &dadosAtividade.horario.fimMinuto);
-        printf("---------------------------------\n");
-        printf("Descrição:\n");
-        setbuf(stdin, NULL);
-        fgets(dadosAtividade.descricao, sizeof(dadosAtividade.descricao), stdin);
-        
-        printf("Deseja atribuir um tag existente ou Deseja criar uma nova Tag?\n");
-        printf("\n1 - Atribuir #Tag");
-        printf("\n2 - Criar nova #Tag");
-        scanf("%d", &opDeAtribuicaoOuCriacao);
-
-        if (opDeAtribuicaoOuCriacao == 1)
-          printf("\nSuas Tags são: ");
-        
-
-      break;
+      break;        
 
       case 2:
-        printf("Qual atividade deseja buscar? ");
         
       break;
 
       case 3:
-        printf("Qual atividade deseja alterar? ");
         
       break;
 
       case 4:
-        printf("Qual atividade deseja deletar? ");
 
       break;
 
-      case 5:
-        printf("Qual o nome da sua tag?");
+      case 5:   
 
       break;
 
-      case 6:
-        printf("Suas tags são: ");
-
+      case 6:  
 
       break;
 
       case 7:
-        printf("Seu relatório Semanal é: ");
 
-
-      break;
-
-      case 8:
-        printf("Em sua semana constam as seguintes atividades: ");
       break;
 
       default:
+
         printf("\n************************");
         printf(COR_VERMELHA "\nDigite uma opção valida!" COR_BRANCA);
         printf("\n************************\n");
+
       break;
-      
+
     }
-    
+
   } while (op != 0);
-  
+
   return 0;
+
 }
