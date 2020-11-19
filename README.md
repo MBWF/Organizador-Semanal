@@ -46,9 +46,8 @@
   2 - Buscar atividade
   3 - Alterar atividade
   4 - Deletar atividade
-  5 - Mostrar Tags
-  6 - Mostrar Relatório Semanal
-  7 - Mostrar Agenda Semanal
+  5 - Mostrar Relatório Semanal
+  6 - Mostrar Agenda Semanal
   
 ---
 # Autores

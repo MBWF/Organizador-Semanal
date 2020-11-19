@@ -43,46 +43,18 @@ typedef struct {
 // Variaveis Globais
 agendaSemanal agendasemanal;
 DadosAtividade dadosAtividade;
+char diaSemana[TAM_SEMANA][10] = { "Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado" };
 
 // Funções
-
-void cadastrarAtividade() {
-  int opDeAtribuicaoOuCriacao;
-
-  printf("Qual o nome da atividade? ");
-        setbuf(stdin, NULL);
-        fgets(dadosAtividade.nomeAtividade, sizeof(dadosAtividade.nomeAtividade), stdin);
-
-        printf("Que horas começa a atividade?");
-        printf("\nHora/Minutos: ");
-        scanf("%d", &dadosAtividade.horario.inicioHora);
-        scanf("%d", &dadosAtividade.horario.inicioMinuto);
-
-        printf("---------------------------------\n");
-
-        printf("Que horas termina a atividade?");
-        printf("\nHora/Minutos: ");
-        scanf("%d", &dadosAtividade.horario.fimHora);
-        scanf("%d", &dadosAtividade.horario.fimMinuto);
-        printf("---------------------------------\n");
-        printf("Descrição:\n");
-        setbuf(stdin, NULL);
-        fgets(dadosAtividade.descricao, sizeof(dadosAtividade.descricao), stdin);
-
-        printf("\nQual o Grau de importância(1 a 5)?\n");
-        scanf("%i", &dadosAtividade.grau);
-}
 
 void listaAtividades(AtividadesDia *inicio) {
   AtividadesDia *atividades = inicio;
 
-  while(atividades!=NULL){
-
+  while(atividades!=NULL) {
     printf(COR_BRANCA "Nome Atividade: %s",atividades->nomeAtividade);
     printf("Descrição: %s",atividades->descricao);
-    printf("\n");
     printf("Horario: \nDas %d:%d até as %d:%d", atividades->horario.inicioHora, atividades->horario.inicioMinuto, atividades->horario.fimHora, atividades->horario.fimMinuto);
-    printf(COR_AZUL "--------------------------------\n" COR_BRANCA);
+    printf("\n--------------------------------\n");
 
     atividades = (AtividadesDia *)atividades->prox;
   }
@@ -161,7 +133,57 @@ void config(AtividadesDia *semana[], int tam) {
   }
 }
 
-//Fim das Funções
+int indexDiaSemana() {
+  int op;
+
+  printf("\n");
+  for(int i = 0; i < TAM_SEMANA; i++) {
+    printf("%d-%s\n", i+1, diaSemana[i]);
+  }
+
+  printf("Digite o numero correspondente ao dia: ");
+  scanf("%d", &op);
+
+  while(op <= 0 || op > TAM_SEMANA) {
+    printf(COR_VERMELHA "Ops... você digitou um número invalido\n" COR_BRANCA);
+    printf("Digite o numero correspondente ao dia: ");
+    scanf("%d", &op);
+  }
+  
+  return op - 1 ;
+}
+
+void cadastrarAtividade() {
+  int opDeAtribuicaoOuCriacao;
+
+  printf("Qual o nome da atividade? ");
+  setbuf(stdin, NULL);
+  fgets(dadosAtividade.nomeAtividade, sizeof(dadosAtividade.nomeAtividade), stdin);
+
+  printf("Que horas começa a atividade?");
+  printf("\nHora/Minutos: ");
+  scanf("%d", &dadosAtividade.horario.inicioHora);
+  scanf("%d", &dadosAtividade.horario.inicioMinuto);
+
+  printf("---------------------------------\n");
+
+  printf("Que horas termina a atividade?");
+  printf("\nHora/Minutos: ");
+  scanf("%d", &dadosAtividade.horario.fimHora);
+  scanf("%d", &dadosAtividade.horario.fimMinuto);
+  printf("---------------------------------\n");
+  printf("Descrição:\n");
+  setbuf(stdin, NULL);
+  fgets(dadosAtividade.descricao, sizeof(dadosAtividade.descricao), stdin);
+
+  printf("\nQual o Grau de importância(1 a 5)?\n");
+  scanf("%i", &dadosAtividade.grau);
+
+  int index = indexDiaSemana();
+
+  agendasemanal.semana[index] = inserirAtividade(agendasemanal.semana[index], &dadosAtividade);
+  
+}
 
 // Main
 int main() {
@@ -169,10 +191,10 @@ int main() {
 
   config(agendasemanal.semana, TAM_SEMANA);
 
-  int op;
-  // char diaSemana[7][10] = {"Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"};
+  int op, index;
+  
 
-  // logo();
+  logo();
 
   do {  // começo do menu do programa
 
@@ -201,7 +223,8 @@ int main() {
       break;        
 
       case 2:
-        
+        index = indexDiaSemana();
+        // buscar atividade
       break;
 
       case 3:
@@ -218,6 +241,9 @@ int main() {
 
       case 6:  
 
+        index = indexDiaSemana();
+        listaAtividades(agendasemanal.semana[index]);
+        
       break;
 
       case 7:
