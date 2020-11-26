@@ -41,7 +41,6 @@
 
 ---
 # Funcionalidades:
-  0 - Sair
   1 - Cadastrar atividade
   2 - Buscar atividade
   3 - Alterar atividade

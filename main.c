@@ -2,16 +2,17 @@
 #include <stdlib.h>
 #include <locale.h>
 #include <string.h>
+#include <stdbool.h>
 
 #define MAX_LEN 128 // Leitura maxima para imprimir a Logo
 #define TAM_SEMANA 7 // Quantidades de dias na semana de Domingo a Sabado
 
 // Cores para o console em ANSII
 #define COR_VERMELHA "\033[1;31m"
-#define COR_VERDE "\033[1;32m"
-#define COR_AZUL "\033[1;94m"
-#define COR_BRANCA "\033[1;97m"
 #define COR_ROXA "\033[0;35m"
+#define COR_AZUL "\033[1;94m"
+#define COR_VERDE "\033[1;32m"
+#define COR_BRANCA "\033[1;97m"
 
 // Structs
 typedef struct {
@@ -40,24 +41,217 @@ typedef struct {
   int grau;
 } DadosAtividade;
 
+typedef struct {
+  char nomeAtividade[50];
+
+  int inicioHora;
+  int inicioMinuto;
+  int fimHora;
+  int fimMinuto;
+
+  char descricao[100];
+  int grau;
+
+  int dia;
+} ArquivoDados;
+
 // Variaveis Globais
 agendaSemanal agendasemanal;
 DadosAtividade dadosAtividade;
 char diaSemana[TAM_SEMANA][10] = { "Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado" };
 
 // Funções
+void print_image(FILE *fptr) {
+  char read_string[MAX_LEN];
 
-void listaAtividades(AtividadesDia *inicio) {
+  while(fgets(read_string,sizeof(read_string),fptr) != NULL)
+    printf("%s",read_string);
+
+  printf("\n");
+}
+
+void logo() {
+  char *filename = "BD/logo.txt";
+  FILE *fptr = NULL;
+
+  if((fptr = fopen(filename,"r")) == NULL) {
+    fprintf(stderr,"error opening %s\n",filename);    
+  }
+
+  print_image(fptr);
+
+  fclose(fptr);
+
+}
+
+void grauCor(int n) {
+  switch(n) {
+    case 1: 
+      printf(COR_BRANCA);
+    break;
+    case 2: 
+      printf(COR_AZUL);
+    break;
+    case 3: 
+      printf(COR_ROXA);
+    break;
+    case 4: 
+      printf(COR_VERDE);
+    break;
+    case 5: 
+      printf(COR_VERMELHA);
+    break;
+
+  }
+}
+
+void printDiaSemana(int n) {
+  switch(n) {
+    case 1: 
+      printf("Dia da semana: Segunda");
+    break;
+    case 2: 
+      printf("Dia da semana: Terça");
+    break;
+    case 3: 
+      printf("Dia da semana: Quarta");
+    break;
+    case 4: 
+      printf("Dia da semana: Quinta");
+    break;
+    case 5: 
+      printf("Dia da semana: Sexta");
+    break;
+    case 6: 
+      printf("Dia da semana: Sabado");
+    break;
+    case 0: 
+      printf("Dia da semana: Domingo");
+    break;
+
+  }
+}
+
+void lerArquivo() {
+  ArquivoDados dados;
+  FILE *f = fopen("BD/semana.bin", "rb");
+  if(!f) {
+    printf("erro ao tentar ler o arquivo :(");
+  }
+
+  while(fread(&dados, sizeof(ArquivoDados), 1, f)) {
+    grauCor(dados.grau);
+    printDiaSemana(dados.dia);
+    printf("Nome Atividade: %s",dados.nomeAtividade);
+    printf("Descrição: %s",dados.descricao);
+    printf("Horario: \nDas %d:%d até as %d:%d", dados.inicioHora, dados.inicioMinuto, dados.fimHora, dados.fimMinuto);
+    printf("\n--------------------------------\n");
+  }
+}
+
+void salvarArquivos(AtividadesDia *no, int index) {
+  ArquivoDados dados;
+  FILE *f = fopen("BD/semana.bin", "ab");
+
+  strcpy(dados.nomeAtividade, no->nomeAtividade);
+  strcpy(dados.descricao, no->descricao);
+  dados.dia = index;
+  dados.inicioHora = no->horario.inicioHora;
+  dados.inicioMinuto = no->horario.inicioMinuto;
+  dados.fimHora = no->horario.fimHora;
+  dados.fimMinuto = no->horario.fimMinuto;
+  dados.grau = no->grau;
+
+  fwrite(&dados, sizeof(ArquivoDados), 1, f);
+  fclose(f);
+}
+
+void salvar(AtividadesDia *inicio, int index) {
   AtividadesDia *atividades = inicio;
 
   while(atividades!=NULL) {
-    printf(COR_BRANCA "Nome Atividade: %s",atividades->nomeAtividade);
+    salvarArquivos(atividades, index);
+    atividades = (AtividadesDia *)atividades->prox;
+  }
+}
+
+void trocarValoresAtividade(AtividadesDia *primeiro, AtividadesDia *segundo) {
+  char nomeAux[50];
+  char descricaoAux[100];
+  int aux;
+
+  strcpy(nomeAux, primeiro->nomeAtividade);
+  strcpy(primeiro->nomeAtividade, segundo->nomeAtividade);
+  strcpy(segundo->nomeAtividade, nomeAux);
+
+  strcpy(descricaoAux, primeiro->descricao);
+  strcpy(primeiro->descricao, segundo->descricao);
+  strcpy(segundo->descricao, descricaoAux);
+
+  aux = primeiro->grau;
+  primeiro->grau = segundo->grau;
+  segundo->grau = aux;
+
+  aux = primeiro->horario.inicioHora;
+  primeiro->horario.inicioHora = segundo->horario.inicioHora;
+  segundo->horario.inicioHora = aux;
+
+  aux = primeiro->horario.inicioMinuto;
+  primeiro->horario.inicioMinuto = segundo->horario.inicioMinuto;
+  segundo->horario.inicioMinuto = aux;
+
+  aux = primeiro->horario.fimHora;
+  primeiro->horario.fimHora = segundo->horario.fimHora;
+  segundo->horario.fimHora = aux;
+
+  aux = primeiro->horario.fimMinuto;
+  primeiro->horario.fimMinuto = segundo->horario.fimMinuto;
+  segundo->horario.fimMinuto = aux;
+}
+
+void organizarLista(AtividadesDia *inicio) {
+  AtividadesDia *i = inicio;
+  AtividadesDia *j = inicio;
+
+  while (i != NULL) {
+    while (j != NULL) {
+      if(i->horario.inicioHora > j->horario.inicioHora) {
+        
+        trocarValoresAtividade(i, j);
+        break;
+      }
+      if(i->horario.inicioHora == j->horario.inicioHora) {
+        if(i->horario.inicioMinuto > j->horario.inicioMinuto) {
+          
+          trocarValoresAtividade(i, j);
+        }
+      }
+      j =(AtividadesDia *) j->prox;
+    }
+
+    i = (AtividadesDia *) i->prox;
+    j = i;
+
+  }
+}
+
+void listaAtividades(AtividadesDia *inicio) {
+  system("clear");
+  logo();
+  
+  AtividadesDia *atividades = inicio;
+
+  while(atividades!=NULL) {
+    grauCor(atividades->grau);
+    printf("Nome Atividade: %s",atividades->nomeAtividade);
     printf("Descrição: %s",atividades->descricao);
     printf("Horario: \nDas %d:%d até as %d:%d", atividades->horario.inicioHora, atividades->horario.inicioMinuto, atividades->horario.fimHora, atividades->horario.fimMinuto);
     printf("\n--------------------------------\n");
 
     atividades = (AtividadesDia *)atividades->prox;
   }
+
+  printf(COR_BRANCA);
 }
 
 AtividadesDia * inserirAtividade(AtividadesDia *inicio, DadosAtividade *dados) {
@@ -80,7 +274,7 @@ AtividadesDia * inserirAtividade(AtividadesDia *inicio, DadosAtividade *dados) {
 
   atividade->prox = NULL;
 
-  // está inserindo ao final da lista! ainda sem criterio para inserir
+  // está inserindo ao final da lista!
   if(inicio == NULL) {
     return atividade;
 
@@ -94,7 +288,7 @@ AtividadesDia * inserirAtividade(AtividadesDia *inicio, DadosAtividade *dados) {
     }
 
     p->prox = (struct AtividadesDia *) atividade;
-
+    organizarLista(inicio);
     return inicio;
   }
 }
@@ -103,26 +297,26 @@ AtividadesDia * criar_atividades_dia(void) {
   return NULL;
 }
 
-void print_image(FILE *fptr) {
-  char read_string[MAX_LEN];
-
-  while(fgets(read_string,sizeof(read_string),fptr) != NULL)
-    printf("%s",read_string);
-
-  printf("\n");
-}
-
-void logo() {
-  char *filename = "BD/logo.txt";
-  FILE *fptr = NULL;
-
-  if((fptr = fopen(filename,"r")) == NULL) {
-    fprintf(stderr,"error opening %s\n",filename);    
+void carregarDadosArquivo() {
+  ArquivoDados dados;
+  DadosAtividade dadosArquivo;
+  FILE *f = fopen("BD/semana.bin", "rb");
+  if(!f) {
+    printf("erro ao tentar ler o arquivo :(");
   }
 
-  print_image(fptr);
+  while(fread(&dados, sizeof(ArquivoDados), 1, f)) {
+    strcpy(dadosArquivo.nomeAtividade, dados.nomeAtividade);
+    strcpy(dadosArquivo.descricao, dados.descricao);
+    dadosArquivo.grau = dados.grau;
+    dadosArquivo.horario.inicioHora = dados.inicioHora;
+    dadosArquivo.horario.inicioMinuto = dados.inicioMinuto;
+    dadosArquivo.horario.fimHora = dados.fimHora;
+    dadosArquivo.horario.fimMinuto = dados.fimMinuto;
+    agendasemanal.semana[dados.dia] = inserirAtividade(agendasemanal.semana[dados.dia], &dadosArquivo);
+  }
 
-  fclose(fptr);
+  fclose(f);
 
 }
 
@@ -154,7 +348,7 @@ int indexDiaSemana() {
 }
 
 void cadastrarAtividade() {
-  int opDeAtribuicaoOuCriacao;
+  // int opDeAtribuicaoOuCriacao;
 
   printf("Qual o nome da atividade? ");
   setbuf(stdin, NULL);
@@ -178,11 +372,227 @@ void cadastrarAtividade() {
 
   printf("\nQual o Grau de importância(1 a 5)?\n");
   scanf("%i", &dadosAtividade.grau);
+  
+  if (dadosAtividade.grau > 5){
+    printf("O grau de importancia esta maior que o limite!\n");
+    printf("Escolha o grau de importancia novamente: ");
+    scanf("%i", &dadosAtividade.grau);
+    printf("\n");
+  }
 
   int index = indexDiaSemana();
 
   agendasemanal.semana[index] = inserirAtividade(agendasemanal.semana[index], &dadosAtividade);
   
+}
+
+bool existiAtividade(AtividadesDia *inicio, char nomeAtividade[]) {
+  bool existir = false;
+  AtividadesDia *p = inicio;
+  
+  while(p != NULL) {
+    if(strcmp(p->nomeAtividade, nomeAtividade) == 0) {
+      existir = true;
+      return existir;
+    }
+
+    p =(AtividadesDia *) p->prox;
+  }
+  return existir;
+}
+
+void buscarAtividade(AtividadesDia *inicio, char nomeAtividade[], int index) {
+  AtividadesDia *p = inicio;
+  
+
+  while(p != NULL) {
+    if(strcmp(p->nomeAtividade, nomeAtividade) == 0) {
+      
+      grauCor(p->grau);
+      printDiaSemana(index);
+      printf("\n");
+      printf("Nome Atividade: %s",p->nomeAtividade);
+      printf("Descrição: %s",p->descricao);      
+      printf("Horario: \nDas %d:%d até as %d:%d", p->horario.inicioHora, p->horario.inicioMinuto, p->horario.fimHora, p->horario.fimMinuto);
+      printf("\n--------------------------------\n");
+    }
+
+    p =(AtividadesDia *) p->prox;
+  }
+
+
+}
+
+void atualizarAtividade(AtividadesDia *inicio, char nomeAtividade[], DadosAtividade *dados) {
+  AtividadesDia *p = inicio;
+  bool existir = false;
+
+  while(p != NULL) {
+    if(strcmp(p->nomeAtividade, nomeAtividade) == 0) {
+      existir = true;
+      p->grau = dados->grau;
+      p->horario.inicioHora = dados->horario.inicioHora;
+      p->horario.inicioMinuto = dados->horario.inicioMinuto;
+      p->horario.fimHora = dados->horario.fimHora;
+      p->horario.fimMinuto = dados->horario.fimMinuto; 
+      
+      strcpy(p->nomeAtividade, dados->nomeAtividade);
+      strcpy(p->descricao, dados->descricao);
+    }
+
+    p =(AtividadesDia *) p->prox;
+  }
+
+  if(existir == false) {
+    printf("Ops... nenhuma atividade encontrada com esse nome\n");
+  }
+}
+
+void alterarAtividade(int index,char nomeAtividade[] ) {
+  bool existir = false;
+
+  for(int i= 0; i < TAM_SEMANA; i++) {
+    if(existiAtividade(agendasemanal.semana[i], nomeAtividade)) {
+      existir = true;
+      break;
+    }
+  }
+
+  if(existir == false) {
+    printf("Ops... não foi encontrado essa atividade :(");
+    return;
+  }
+
+  printf("novo nome da atividade? ");
+  setbuf(stdin, NULL);
+  fgets(dadosAtividade.nomeAtividade, sizeof(dadosAtividade.nomeAtividade), stdin);
+
+  printf("Que horas começa a atividade?");
+  printf("\nHora/Minutos: ");
+  scanf("%d", &dadosAtividade.horario.inicioHora);
+  scanf("%d", &dadosAtividade.horario.inicioMinuto);
+
+  printf("---------------------------------\n");
+
+  printf("Que horas termina a atividade?");
+  printf("\nHora/Minutos: ");
+  scanf("%d", &dadosAtividade.horario.fimHora);
+  scanf("%d", &dadosAtividade.horario.fimMinuto);
+  printf("---------------------------------\n");
+  printf("Nova Descrição:\n");
+  setbuf(stdin, NULL);
+  fgets(dadosAtividade.descricao, sizeof(dadosAtividade.descricao), stdin);
+
+  printf("\nQual novo Grau de importância(1 a 5)?\n");
+  scanf("%i", &dadosAtividade.grau);
+  
+  if (dadosAtividade.grau > 5){
+    printf("O grau de importancia esta maior que o limite!\n");
+    printf("Escolha o grau de importancia novamente: ");
+    scanf("%i", &dadosAtividade.grau);
+    printf("\n");
+  }
+
+  atualizarAtividade(agendasemanal.semana[index], nomeAtividade, &dadosAtividade);
+  organizarLista(agendasemanal.semana[index]);
+}
+
+AtividadesDia * deletarAtividade(AtividadesDia *inicio, char nomeAtividade[]){
+  AtividadesDia *p = inicio;
+  AtividadesDia *a = NULL;
+
+  if(!existiAtividade(p, nomeAtividade)) {
+    printf("Ops... nenhuma atividade encontrada com esse nome\n");
+    return inicio;
+  }
+
+  while (p != NULL && strcmp(p->nomeAtividade, nomeAtividade) != 0 ) {
+    a = p;
+    p = (AtividadesDia *)p->prox;
+  }
+
+  if(p == NULL) {
+    printf(COR_VERMELHA "\nAtividade não encontrado!\n" COR_BRANCA);
+    return inicio;
+  }else if( a == NULL) {
+    printf(COR_VERDE "\nAtividade %sremovido!\n" COR_BRANCA, inicio->nomeAtividade);
+    inicio =(AtividadesDia *) p->prox;
+    free(p);
+    return inicio;
+  }else {
+    printf( COR_VERDE "\nAtividade %sremovido!\n" COR_BRANCA, p->nomeAtividade);
+    a->prox = p->prox;
+    free(p);
+    return inicio;
+  }
+}
+
+int contadorAtividadePorGrau(int grau) {
+  int contador = 0;
+  ArquivoDados dados;
+
+  FILE *f = fopen("BD/semana.bin", "rb");
+  if(!f) {
+    printf("erro ao tentar ler o arquivo :(");
+  }
+
+  while(fread(&dados, sizeof(ArquivoDados), 1, f)) {
+      if(dados.grau == grau) {
+        contador ++;
+      }
+  }
+  
+  fclose(f);
+
+  return contador;
+
+}
+
+int contadorAtividadePorDia(int indexDia) {
+  int contador = 0;
+  ArquivoDados dados;
+
+  FILE *f = fopen("BD/semana.bin", "rb");
+  if(!f) {
+    printf("erro ao tentar ler o arquivo :(");
+  }
+
+  while(fread(&dados, sizeof(ArquivoDados), 1, f)) {
+      if(dados.dia == indexDia) {
+        contador ++;
+      }
+  }
+  
+  fclose(f);
+
+  return contador;
+}
+
+void relatorioSemanal() {
+  ArquivoDados dados;
+  FILE *f = fopen("BD/semana.bin", "rb");
+  if(!f) {
+    printf("erro ao tentar ler o arquivo :(");
+  }
+
+  int contadorAtividadesGrau[5], contadorAtividadeDia[TAM_SEMANA];
+
+  printf("\n-------Quantidade de atividades--------\n");
+  for (int i = 0; i < TAM_SEMANA; i++) {
+    printf("\n");
+    contadorAtividadeDia[i] = contadorAtividadePorDia(i);
+    printDiaSemana(i);
+    printf("\nQuantidade: %d\n", contadorAtividadeDia[i]);
+  }
+  
+  printf("\n-------Quantidade de atividades por Grau--------\n");
+  for (int i = 1; i <= 5; i++) {
+    contadorAtividadesGrau[i] = contadorAtividadePorGrau(i);
+    printf("\nAtividades com Grau %d: %d", i, contadorAtividadesGrau[i]);
+  }
+  
+
+  fclose(f);
 }
 
 // Main
@@ -192,7 +602,9 @@ int main() {
   config(agendasemanal.semana, TAM_SEMANA);
 
   int op, index;
-  
+  char nomeAtividade[50];
+
+  carregarDadosArquivo();
 
   logo();
 
@@ -218,25 +630,62 @@ int main() {
       break;
 
       case 1:
+      
         cadastrarAtividade();
-
+        printf("\n");
+        printf(COR_BRANCA);
+        remove("BD/semana.bin");
+        for(int i= 0; i < TAM_SEMANA; i++) {
+          salvar(agendasemanal.semana[i], i);
+        }
       break;        
 
       case 2:
-        index = indexDiaSemana();
-        // buscar atividade
+       
+        printf("Digite a atividade: ");
+        setbuf(stdin, NULL);
+        fgets(nomeAtividade, sizeof(nomeAtividade), stdin);
+        
+        for(int i= 0; i < TAM_SEMANA; i++) {
+          buscarAtividade(agendasemanal.semana[i], nomeAtividade, i);
+        }
+        printf("\n");
+        printf(COR_BRANCA);
+
       break;
 
       case 3:
-        
+        printf("Digite a atividade: ");
+        setbuf(stdin, NULL);
+        fgets(nomeAtividade, sizeof(nomeAtividade), stdin);
+
+        index = indexDiaSemana();
+
+        alterarAtividade(index, nomeAtividade);
+
+        remove("BD/semana.bin");
+        for(int i= 0; i < TAM_SEMANA; i++) {
+          salvar(agendasemanal.semana[i], i);
+        }
       break;
 
       case 4:
+        printf("Digite a atividade: ");
+        setbuf(stdin, NULL);
+        fgets(nomeAtividade, sizeof(nomeAtividade), stdin);
 
+        index = indexDiaSemana();
+
+        agendasemanal.semana[index] = deletarAtividade(agendasemanal.semana[index], nomeAtividade);
+
+        remove("BD/semana.bin");
+        for(int i= 0; i < TAM_SEMANA; i++) {
+          salvar(agendasemanal.semana[i], i);
+        }
       break;
 
       case 5:   
-
+        relatorioSemanal();
       break;
 
       case 6:  
@@ -244,10 +693,6 @@ int main() {
         index = indexDiaSemana();
         listaAtividades(agendasemanal.semana[index]);
         
-      break;
-
-      case 7:
-
       break;
 
       default:
@@ -263,5 +708,4 @@ int main() {
   } while (op != 0);
 
   return 0;
-
 }
