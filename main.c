@@ -84,6 +84,7 @@ void logo() {
 
 }
 
+// Diz a cor de determinado grau escolhido!
 void grauCor(int n) {
   switch(n) {
     case 1: 
@@ -105,6 +106,8 @@ void grauCor(int n) {
   }
 }
 
+// Diz o dia semana dado o Index(n) e diz qual o dia exato
+// Ex: 0 -> Domingo
 void printDiaSemana(int n) {
   switch(n) {
     case 1: 
@@ -132,7 +135,9 @@ void printDiaSemana(int n) {
   }
 }
 
-void lerArquivo() {
+//Serve de debug para ver se o arquivo
+//está abrindo normalmentte
+void lerArquivo() { 
   ArquivoDados dados;
   FILE *f = fopen("BD/semana.bin", "rb");
   if(!f) {
@@ -149,6 +154,7 @@ void lerArquivo() {
   }
 }
 
+//Salva definitivamente nos arquivos
 void salvarArquivos(AtividadesDia *no, int index) {
   ArquivoDados dados;
   FILE *f = fopen("BD/semana.bin", "ab");
@@ -166,6 +172,7 @@ void salvarArquivos(AtividadesDia *no, int index) {
   fclose(f);
 }
 
+// Tem o objetivo de salvar em qualquer tipo de Arquivo ou banco de dados
 void salvar(AtividadesDia *inicio, int index) {
   AtividadesDia *atividades = inicio;
 
@@ -175,6 +182,7 @@ void salvar(AtividadesDia *inicio, int index) {
   }
 }
 
+//Troca valores do tipo AtividadeDia
 void trocarValoresAtividade(AtividadesDia *primeiro, AtividadesDia *segundo) {
   char nomeAux[50];
   char descricaoAux[100];
@@ -209,6 +217,8 @@ void trocarValoresAtividade(AtividadesDia *primeiro, AtividadesDia *segundo) {
   segundo->horario.fimMinuto = aux;
 }
 
+//Essa função organiza a lista por horário
+//chamando a função trocarValoresAtividade
 void organizarLista(AtividadesDia *inicio) {
   AtividadesDia *i = inicio;
   AtividadesDia *j = inicio;
@@ -216,29 +226,30 @@ void organizarLista(AtividadesDia *inicio) {
   while (i != NULL) {
     while (j != NULL) {
       if(i->horario.inicioHora > j->horario.inicioHora) {
-        
+
         trocarValoresAtividade(i, j);
         break;
       }
+
       if(i->horario.inicioHora == j->horario.inicioHora) {
         if(i->horario.inicioMinuto > j->horario.inicioMinuto) {
-          
+
           trocarValoresAtividade(i, j);
         }
       }
+
       j =(AtividadesDia *) j->prox;
     }
 
     i = (AtividadesDia *) i->prox;
     j = i;
-
   }
 }
 
 void listaAtividades(AtividadesDia *inicio) {
   system("clear");
   logo();
-  
+
   AtividadesDia *atividades = inicio;
 
   while(atividades!=NULL) {
@@ -296,7 +307,8 @@ AtividadesDia * inserirAtividade(AtividadesDia *inicio, DadosAtividade *dados) {
 AtividadesDia * criar_atividades_dia(void) {
   return NULL;
 }
-
+// Obtém todas as atividades do arquivo
+// e adiciona nas devidas listas
 void carregarDadosArquivo() {
   ArquivoDados dados;
   DadosAtividade dadosArquivo;
@@ -319,20 +331,20 @@ void carregarDadosArquivo() {
   fclose(f);
 
 }
-
+//Configuração necessária para configurar cada lista
 void config(AtividadesDia *semana[], int tam) {
 
  for(int i = 0; i < tam; i++){
    semana[i] = criar_atividades_dia();
   }
 }
-
+//Filtragem de index de dia da Semana 
 int indexDiaSemana() {
   int op;
 
   printf("\n");
   for(int i = 0; i < TAM_SEMANA; i++) {
-    printf("%d-%s\n", i+1, diaSemana[i]);
+    printf("%d-%s\n", i + 1, diaSemana[i]);
   }
 
   printf("Digite o numero correspondente ao dia: ");
@@ -344,7 +356,7 @@ int indexDiaSemana() {
     scanf("%d", &op);
   }
   
-  return op - 1 ;
+  return op - 1;
 }
 
 void cadastrarAtividade() {
@@ -403,7 +415,6 @@ bool existiAtividade(AtividadesDia *inicio, char nomeAtividade[]) {
 
 void buscarAtividade(AtividadesDia *inicio, char nomeAtividade[], int index) {
   AtividadesDia *p = inicio;
-  
 
   while(p != NULL) {
     if(strcmp(p->nomeAtividade, nomeAtividade) == 0) {
@@ -419,8 +430,6 @@ void buscarAtividade(AtividadesDia *inicio, char nomeAtividade[], int index) {
 
     p =(AtividadesDia *) p->prox;
   }
-
-
 }
 
 void atualizarAtividade(AtividadesDia *inicio, char nomeAtividade[], DadosAtividade *dados) {
@@ -448,6 +457,8 @@ void atualizarAtividade(AtividadesDia *inicio, char nomeAtividade[], DadosAtivid
   }
 }
 
+//Valida se a atividade existe e altera a atividade existente
+//Chamando a função de organizar a lista para manter em ordem
 void alterarAtividade(int index,char nomeAtividade[] ) {
   bool existir = false;
 
@@ -497,6 +508,7 @@ void alterarAtividade(int index,char nomeAtividade[] ) {
   organizarLista(agendasemanal.semana[index]);
 }
 
+//Deletar atividades escolhidas
 AtividadesDia * deletarAtividade(AtividadesDia *inicio, char nomeAtividade[]){
   AtividadesDia *p = inicio;
   AtividadesDia *a = NULL;
@@ -569,30 +581,35 @@ int contadorAtividadePorDia(int indexDia) {
 }
 
 void relatorioSemanal() {
-  ArquivoDados dados;
-  FILE *f = fopen("BD/semana.bin", "rb");
-  if(!f) {
-    printf("erro ao tentar ler o arquivo :(");
-  }
+  system("clear");
+  logo();
 
-  int contadorAtividadesGrau[5], contadorAtividadeDia[TAM_SEMANA];
+  int contadorAtividadesGrau[5], contadorAtividadeDia[TAM_SEMANA], totalDeAtividades = 0;
 
-  printf("\n-------Quantidade de atividades--------\n");
+  printf(COR_AZUL);
+  printf("\n------- Quantidade de atividades --------");
   for (int i = 0; i < TAM_SEMANA; i++) {
     printf("\n");
     contadorAtividadeDia[i] = contadorAtividadePorDia(i);
     printDiaSemana(i);
     printf("\nQuantidade: %d\n", contadorAtividadeDia[i]);
+    totalDeAtividades += contadorAtividadeDia[i];
   }
   
-  printf("\n-------Quantidade de atividades por Grau--------\n");
+  printf(COR_BRANCA);
+  printf("\n------- Quantidade de atividades por Grau --------");
   for (int i = 1; i <= 5; i++) {
     contadorAtividadesGrau[i] = contadorAtividadePorGrau(i);
     printf("\nAtividades com Grau %d: %d", i, contadorAtividadesGrau[i]);
   }
-  
+  printf("\n");
 
-  fclose(f);
+  printf(COR_VERDE);
+  printf("\n------- Atividades Semanal --------\n");
+  printf("O total de atividades é: %d\n", totalDeAtividades);
+
+  printf(COR_BRANCA);
+  
 }
 
 // Main
@@ -645,7 +662,6 @@ int main() {
         printf("Digite a atividade: ");
         setbuf(stdin, NULL);
         fgets(nomeAtividade, sizeof(nomeAtividade), stdin);
-        
         for(int i= 0; i < TAM_SEMANA; i++) {
           buscarAtividade(agendasemanal.semana[i], nomeAtividade, i);
         }
@@ -689,23 +705,16 @@ int main() {
       break;
 
       case 6:  
-
         index = indexDiaSemana();
         listaAtividades(agendasemanal.semana[index]);
-        
       break;
 
       default:
-
         printf("\n************************");
         printf(COR_VERMELHA "\nDigite uma opção valida!" COR_BRANCA);
         printf("\n************************\n");
-
       break;
-
     }
-
   } while (op != 0);
-
   return 0;
 }

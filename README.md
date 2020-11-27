@@ -3,18 +3,18 @@
 # Sobre o projeto:
 <p>
     Esse projeto foi desenvolvido sobre a demanda de um atividade prática como nota
-  para a cadeira de Programação I, orfetada pela Universidade Estadual da Paraíba (**UEPB**) do segundo período
-  tendo com docente Pablo Roberto.
+  para a cadeira de Programação I, ofertada pela Universidade Estadual da Paraíba (**UEPB**) do segundo período
+  tendo como docente Pablo Roberto.
 </p>
 <p>
     O professor nos solicitou uma aplicação voltada para os problemas apresentados no contexto da pandemia,
-  observamos que um grande problema de nos estudantes está na falta de foco, dada a grande quantidade de atividades, estudo
-  e diversa outros aspectos
+  observamos que um grande problema de nos estudantes estão tendo é a falta de foco, dada a grande quantidade de atividades, estudo
+  e diversa outros atividades
 </p>
 
 <p>
     Então nos veio a ideia de uma aplicação para ajudar o aluno com a organizar suas atividades ao longo da semana,
-  com suas semana bem descrita o aluno terá facilidade em saber quando focar em uma tarefa e quando passar para outra
+  com suas semanas bem descritas, o aluno terá facilidade em saber quando focar em uma tarefa e quando passar para outra
 </p>
  
 ---
