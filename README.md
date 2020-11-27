@@ -41,12 +41,12 @@
 
 ---
 # Funcionalidades:
-  1 - Cadastrar atividade
-  2 - Buscar atividade
-  3 - Alterar atividade
-  4 - Deletar atividade
-  5 - Mostrar Relatório Semanal
-  6 - Mostrar Agenda Semanal
+  1 - Cadastrar atividade <br/>
+  2 - Buscar atividade <br/>
+  3 - Alterar atividade <br/>
+  4 - Deletar atividade <br/>
+  5 - Mostrar Relatório Semanal <br/>
+  6 - Mostrar Agenda Semanal <br/>
   
 ---
 # Autores
